@@ -1,0 +1,31 @@
+cc_defaults {
+    name: "fluoride_vvnx_alrm_defaults",
+    defaults: ["fluoride_defaults"],
+    include_dirs: [
+        "system/bt",
+        "system/bt/include",
+        "system/bt/osi/src/protos",
+        "system/bt/utils/include",
+        "system/bt/stack/include",
+    ]
+}
+
+cc_binary {
+    name: "bt_alrm",
+    defaults: ["fluoride_vvnx_alrm_defaults"],
+    srcs: [
+        "vvnx.cpp",
+    ],
+    shared_libs: [
+        "libutils",             
+        "libhardware",
+        "libbase",
+        "libcutils"
+    ],
+    static_libs: [
+        "libbtcore",
+
+    ],
+ 
+    
+}

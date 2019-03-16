@@ -1,0 +1,36 @@
+#configuration selinux pour ce projet: j'utilise le context bluetoothtbd avec les fichiers suivants:
+
+#system/sepolicy/private/bluetoothtbd.te
+	typeattribute bluetoothtbd coredomain;
+	init_daemon_domain(bluetoothtbd)
+	binder_service(bluetoothtbd)
+	wakelock_use(bluetoothtbd)
+	allow bluetoothtbd self:capability { dac_override dac_read_search fsetid sys_nice };
+	allow bluetoothtbd self:capability2 { wake_alarm };
+	allow bluetoothtbd bluetooth_data_file:dir { read search write remove_name open add_name };
+	allow bluetoothtbd bluetooth_data_file:file { ioctl read write create getattr setattr lock append unlink link rename open};
+	allow bluetoothtbd bluetooth_logs_data_file:dir rw_dir_perms;
+	allow bluetoothtbd bluetooth_logs_data_file:file create_file_perms;
+	allow bluetoothtbd kmsg_device:chr_file rw_file_perms;
+	add_service(bluetoothtbd, bluetoothtbd_service)
+	set_prop(bluetoothtbd, bluetooth_prop)
+	get_prop(bluetoothtbd, bluetooth_prop)
+	get_prop(bluetoothtbd, hwservicemanager_prop)
+	binder_use(bluetoothtbd)
+	hwbinder_use(bluetoothtbd)
+	allow bluetoothtbd self:binder { call transfer };
+	add_hwservice(bluetoothtbd, bluetoothtbd_service)
+	hal_client_domain(bluetoothtbd, hal_bluetooth)
+#system/sepolicy/public/bluetoothtbd.te
+	type bluetoothtbd, domain;
+	type bluetoothtbd_exec, exec_type, file_type;
+#system/sepolicy/private/compat/26.0/26.0.ignore.cil
+	dans (typeattributeset new_objects ajouter:
+	bluetoothtbd
+	bluetoothtbd_exec
+	bluetoothtbd_tmpfs
+	bluetoothtbd_service
+	
+#compilation:
+make selinux_policy
+pushd out/target/product/mido/system/etc/selinux/; adb push plat_sepolicy.cil plat_and_mapping_sepolicy.cil.sha256 plat_file_contexts /etc/selinux/; popd
