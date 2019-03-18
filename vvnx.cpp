@@ -23,6 +23,8 @@ chmod 755 /system/bin/bt_alrm
 #include <errno.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <iostream>
+#include <iomanip>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
@@ -68,8 +70,15 @@ void scan_result_cb(uint16_t event_type, uint8_t addr_type,
 					 int8_t rssi, uint16_t periodic_adv_int,
 					 std::vector<uint8_t> adv_data) {
 		std::string addrstr = bda->ToString();
-		//KLOG_WARNING(LOG_TAG, "VVNX scan result cb bdaddr=%s", addrstr.c_str());
-		LOG(INFO) << "VVNX scan result cb bdaddr=" << addrstr.c_str() << ", rssi=-" << abs(rssi); //logcat -s bt_stack			 	
+		//récupération des données du capteur bmx280 dans l'adv_data (github: esp_bleadv_bmx280)
+		int temp_intpart=(int) adv_data[5];
+		float temp_decpart=(float) adv_data[6];
+		float temp = temp_intpart + (temp_decpart / 100);
+		int hum_intpart=(int) adv_data[7];
+		float hum_decpart=(float) adv_data[8];
+		float hum = hum_intpart + (hum_decpart / 100);
+		std::cout << std::setprecision(2) << std::fixed; //pour avoir du float en cout (le printf c++ avec les "<<") il faut ça et #include <iomanip>
+		LOG(INFO) << "scan_cb bdaddr=" << addrstr.c_str() << ", temp=" << temp << " ,hum=" << hum << ", rssi=-" << abs(rssi);  //logcat -s bt_stack			 	
 			
 }
 
